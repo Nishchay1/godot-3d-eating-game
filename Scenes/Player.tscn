@@ -1,0 +1,91 @@
+[gd_scene load_steps=8 format=2]
+
+[ext_resource path="res://Scripts/Player.gd" type="Script" id=1]
+[ext_resource path="res://Scenes/Slime.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Scenes/MobileControls.tscn" type="PackedScene" id=3]
+[ext_resource path="res://Scripts/Camera.gd" type="Script" id=4]
+[ext_resource path="res://Scripts/HurtArea.gd" type="Script" id=5]
+
+[sub_resource type="CylinderShape" id=3]
+height = 1.69069
+radius = 1.12022
+
+[sub_resource type="SphereShape" id=2]
+radius = 1.41517
+
+[node name="Player" type="KinematicBody"]
+collision_mask = 9
+script = ExtResource( 1 )
+power = 1
+
+[node name="Mesh" type="Spatial" parent="."]
+
+[node name="Slime" parent="Mesh" instance=ExtResource( 2 )]
+
+[node name="CollisionShape" type="CollisionShape" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.953803, 0.00994539 )
+shape = SubResource( 3 )
+
+[node name="MobileControls" parent="." instance=ExtResource( 3 )]
+
+[node name="CameraRoot" type="Spatial" parent="."]
+script = ExtResource( 4 )
+
+[node name="Camera" type="Camera" parent="CameraRoot"]
+transform = Transform( 1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, 8, 7.94712 )
+far = 1000.0
+
+[node name="EaterArea" type="Area" parent="."]
+collision_layer = 8
+collision_mask = 0
+
+[node name="CollisionShape" type="CollisionShape" parent="EaterArea"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.823879, 0.0198466 )
+shape = SubResource( 2 )
+
+[node name="Control" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="ColorRect" type="ColorRect" parent="Control"]
+anchor_right = 1.0
+margin_bottom = 40.0
+color = Color( 0, 0, 0, 1 )
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/ColorRect"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Label" type="Label" parent="Control/ColorRect/VBoxContainer"]
+margin_right = 1024.0
+margin_bottom = 14.0
+text = "Growth Bar:"
+align = 1
+
+[node name="ProgressBar" type="ProgressBar" parent="Control/ColorRect/VBoxContainer"]
+margin_top = 18.0
+margin_right = 1024.0
+margin_bottom = 32.0
+rect_min_size = Vector2( 0, 14 )
+percent_visible = false
+
+[node name="HurtArea" type="Area" parent="."]
+collision_layer = 4
+collision_mask = 4
+script = ExtResource( 5 )
+
+[node name="CollisionShape" type="CollisionShape" parent="HurtArea"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.823879, 0.0198466 )
+shape = SubResource( 2 )
+__meta__ = {
+"_editor_description_": ""
+}
+
+[connection signal="idle" from="." to="Mesh/Slime" method="_on_Player_idle"]
+[connection signal="moving" from="." to="Mesh/Slime" method="_on_Player_moving"]
+[connection signal="power_up" from="." to="MobileControls" method="_on_Player_power_up"]
+[connection signal="use_look_vector" from="MobileControls" to="CameraRoot" method="_on_MobileControls_use_look_vector"]
+[connection signal="use_move_vector" from="MobileControls" to="." method="_on_MobileControls_use_move_vector"]
+[connection signal="area_entered" from="EaterArea" to="." method="_on_EaterArea_area_entered"]
+[connection signal="damaged" from="HurtArea" to="." method="_on_HurtArea_damaged"]
